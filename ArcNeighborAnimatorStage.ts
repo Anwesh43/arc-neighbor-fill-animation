@@ -6,7 +6,7 @@ const strokeFactor : number = 90
 const sizeFactor : number = 2.9
 const foreColor : string = "#673AB7"
 const w : number = window.innerWidth
-const h : number = window.innerHeight 
+const h : number = window.innerHeight
 
 class ArcNeighborAnimatorStage {
 
@@ -36,5 +36,29 @@ class ArcNeighborAnimatorStage {
         stage.initCanvas()
         stage.render()
         stage.handleTap()
+    }
+}
+
+class State {
+
+    scale : number = 0
+    dir : number = 0
+    prevScale : number = 0
+
+    update(cb : Function) {
+        this.scale += scGap * this.dir
+        if (Math.abs(this.scale - this.prevScale) > 1) {
+            this.scale = this.prevScale + this.dir
+            this.dir = 0
+            this.prevScale = this.scale
+            cb()
+        }
+    }
+
+    startUpdating(cb : Function) {
+        if (this.dir == 0) {
+            this.dir = 1 - 2 * this.prevScale
+            cb()
+        }
     }
 }
