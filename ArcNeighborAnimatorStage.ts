@@ -23,6 +23,9 @@ class ScaleUtil {
 class DrawingUtil {
 
     static drawLine(context : CanvasRenderingContext2D, x1 : number, y1 : number, x2 : number, y2 : number) {
+        if (x1 == x2 && y1 == y2) {
+            return
+        }
         context.beginPath()
         context.moveTo(x1, y1)
         context.lineTo(x2, y2)
@@ -33,29 +36,27 @@ class DrawingUtil {
         context.save()
         context.translate(x, y)
         context.beginPath()
+        context.moveTo(0, 0)
         for (var i = 0; i <= 360 * sc; i++) {
             const xr : number = r * Math.cos(i * Math.PI / 180)
             const yr : number = r * Math.sin(i * Math.PI / 180)
-            if (i == 0) {
-                context.moveTo(xr, yr)
-            } else {
-                context.lineTo(xr, yr)
-            }
+            context.lineTo(xr, yr)
         }
         context.fill()
         context.restore()
     }
 
     static drawArcNeighbors(context : CanvasRenderingContext2D, size : number, scale : number) {
-        const sc1 : number = ScaleUtil.divideScale(scale, 0, 2)
-        const sc2 : number = ScaleUtil.divideScale(scale, 1, 2)
+        const sc1 : number = ScaleUtil.divideScale(scale, 0, 3)
+        const sc2 : number = ScaleUtil.divideScale(scale, 1, 3)
+        const sc3 : number = ScaleUtil.divideScale(scale, 2, 3)
         const r : number = size / rFactor
         context.save()
         DrawingUtil.drawCircle(context, 0, 0, size / rFactor, sc1)
         for (var i = 0; i < arcs; i++) {
             context.save()
             context.rotate(Math.PI / 2 * i)
-            DrawingUtil.drawCircle(context, size, 0, r, sc2)
+            DrawingUtil.drawCircle(context, size, 0, r, sc3)
             DrawingUtil.drawLine(context, 0, 0, 0, size * sc2)
             context.restore()
         }
@@ -71,6 +72,7 @@ class DrawingUtil {
         context.lineWidth = Math.min(w, h) / strokeFactor
         context.save()
         context.translate(gap * (i + 1), h / 2)
+        DrawingUtil.drawArcNeighbors(context, size, scale)
         context.restore()
     }
 }
@@ -118,6 +120,7 @@ class State {
 
     update(cb : Function) {
         this.scale += scGap * this.dir
+        console.log(this.scale)
         if (Math.abs(this.scale - this.prevScale) > 1) {
             this.scale = this.prevScale + this.dir
             this.dir = 0
