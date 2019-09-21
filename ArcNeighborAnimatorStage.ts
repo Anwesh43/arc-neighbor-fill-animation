@@ -217,3 +217,25 @@ class ArcNeighborAnimator {
         this.curr.startUpdating(cb)
     }
 }
+
+class Renderer {
+
+    ana : ArcNeighborAnimator = new ArcNeighborAnimator()
+    animator : Animator = new Animator()
+
+    render(context : CanvasRenderingContext2D) {
+        this.ana.draw(context)
+    }
+
+    handleTap(cb : Function) {
+        this.ana.startUpdating(() => {
+            this.animator.start(() => {
+                cb()
+                this.ana.update(() => {
+                    this.animator.stop()
+                    cb()
+                })
+            })
+        })
+    }
+}
