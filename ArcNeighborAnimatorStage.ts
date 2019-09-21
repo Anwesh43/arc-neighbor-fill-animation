@@ -7,6 +7,7 @@ const sizeFactor : number = 2.9
 const foreColor : string = "#673AB7"
 const w : number = window.innerWidth
 const h : number = window.innerHeight
+const rFactor : number = 3
 
 class ScaleUtil {
 
@@ -16,6 +17,61 @@ class ScaleUtil {
 
     static divideScale(scale : number, i : number, n : number) : number {
         return Math.min(1 / n, ScaleUtil.maxScale(scale, i, n)) * n
+    }
+}
+
+class DrawingUtil {
+
+    static drawLine(context : CanvasRenderingContext2D, x1 : number, y1 : number, x2 : number, y2 : number) {
+        context.beginPath()
+        context.moveTo(x1, y1)
+        context.lineTo(x2, y2)
+        context.stroke()
+    }
+
+    static drawCircle(context : CanvasRenderingContext2D, x : number, y : number, r : number, sc : number) {
+        context.save()
+        context.translate(x, y)
+        context.beginPath()
+        for (var i = 0; i <= 360 * sc; i++) {
+            const xr : number = r * Math.cos(i * Math.PI / 180)
+            const yr : number = r * Math.sin(i * Math.PI / 180)
+            if (i == 0) {
+                context.moveTo(xr, yr)
+            } else {
+                context.lineTo(xr, yr)
+            }
+        }
+        context.fill()
+        context.restore()
+    }
+
+    static drawArcNeighbors(context : CanvasRenderingContext2D, size : number, scale : number) {
+        const sc1 : number = ScaleUtil.divideScale(scale, 0, 2)
+        const sc2 : number = ScaleUtil.divideScale(scale, 1, 2)
+        const r : number = size / rFactor
+        context.save()
+        DrawingUtil.drawCircle(context, 0, 0, size / rFactor, sc1)
+        for (var i = 0; i < arcs; i++) {
+            context.save()
+            context.rotate(Math.PI / 2 * i)
+            DrawingUtil.drawCircle(context, size, 0, r, sc2)
+            DrawingUtil.drawLine(context, 0, 0, 0, size * sc2)
+            context.restore()
+        }
+        context.restore()
+    }
+
+    static drawANANode(context : CanvasRenderingContext2D, i : number, scale : number) {
+        const gap : number = w / (nodes + 1)
+        const size : number = gap / sizeFactor
+        context.strokeStyle = foreColor
+        context.fillStyle = foreColor
+        context.lineCap = 'round'
+        context.lineWidth = Math.min(w, h) / strokeFactor
+        context.save()
+        context.translate(gap * (i + 1), h / 2)
+        context.restore()
     }
 }
 
