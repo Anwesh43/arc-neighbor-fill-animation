@@ -169,8 +169,8 @@ class ANANode {
 
     draw(context : CanvasRenderingContext2D) {
         DrawingUtil.drawANANode(context, this.i, this.state.scale)
-        if (this.next) {
-            this.next.draw(context)
+        if (this.prev) {
+            this.prev.draw(context)
         }
     }
 
@@ -191,6 +191,29 @@ class ANANode {
             return curr
         }
         cb()
-        return this 
+        return this
+    }
+}
+
+class ArcNeighborAnimator {
+
+    curr : ANANode = new ANANode(0)
+    dir : number = 1
+
+    draw(context : CanvasRenderingContext2D) {
+        this.curr.draw(context)
+    }
+
+    update(cb : Function) {
+        this.curr.update(() => {
+            this.curr = this.curr.getNext(this.dir, () => {
+                this.dir *= -1
+            })
+            cb()
+        })
+    }
+
+    startUpdating(cb : Function) {
+        this.curr.startUpdating(cb)
     }
 }
